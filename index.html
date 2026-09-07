@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Наши Истории 💖</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #fff0f5;
+            --card-bg: #ffffff;
+            --accent-color: #ff6b81;
+            --text-color: #4a4a4a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .header-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(255, 107, 129, 0.15);
+            margin-bottom: 25px;
+            border: 2px solid #ffe4e8;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background: #ffe4e8;
+            color: var(--accent-color);
+            font-weight: bold;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+        }
+
+        .main-title {
+            font-size: 1.05em;
+            line-height: 1.5;
+            margin: 0;
+            color: #555;
+        }
+
+        .buttons-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .story-btn {
+            background: var(--card-bg);
+            border: 2px solid #ffd1d7;
+            color: #333;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .story-btn:active {
+            transform: scale(0.98);
+            background: #ffe4e8;
+        }
+
+        /* Экран чтения истории */
+        .story-view {
+            display: none;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(255, 107, 129, 0.18);
+            border: 2px solid #ffe4e8;
+            text-align: left;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .story-title {
+            color: var(--accent-color);
+            font-size: 1.3em;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .story-content {
+            font-size: 1em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: #444;
+            margin-bottom: 25px;
+        }
+
+        .back-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 107, 129, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Главное меню -->
+        <div id="main-menu">
+            <div class="header-card">
+                <div class="date-badge">💖 22.12.23 💖</div>
+                <p class="main-title">
+                    Ты сказала, чтобы я написала 1 историю о нас, но я напишу 5 ✨<br><br>
+                    Каждую по пунктам, а потом ту, что соберет все пункты вместе 💕
+                </p>
+            </div>
+
+            <div class="buttons-list">
+                <button class="story-btn" onclick="openStory(1)">
+                    <span>🌸 Милая</span> <span>➔</span>
+                </button>
+                <button class="story-btn" onclick="openStory(2)">
+                    <span>🍯 Забавная</span> <span>➔</span>
+                </button>
+                <button class="story-btn" onclick="openStory(3)">
+                    <span>☕ Та, что греет сердце</span> <span>➔</span>
+                </button>
+                <button class="story-btn" onclick="openStory(4)">
+                    <span>💫 Которую хочется повторить</span> <span>➔</span>
+                </button>
+                <button class="story-btn" onclick="openStory(5)">
+                    <span>💌 Наша история</span> <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран истории -->
+        <div id="story-view" class="story-view">
+            <h2 id="story-title" class="story-title"></h2>
+            <div id="story-content" class="story-content"></div>
+            <button class="back-btn" onclick="closeStory()">⬅️ Назад в меню</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
+
+        // Тексты твоих историй
+        const stories = {
+            1: {
+                title: "🌸 Милая история",
+                content: "Здесь напиши свою первую милую историю...\n\nНапример, про то, как вы впервые гуляли или о ее милой привычке! 💕"
+            },
+            2: {
+                title: "🍯 Забавная история",
+                content: "Здесь напиши веселую историю...\n\nТот самый смешной момент, который вы вспоминаете со смехом! 😄"
+            },
+            3: {
+                title: "☕ Та, что греет сердце",
+                content: "Здесь напиши трогательную историю...\n\nПро заботу, теплые слова и уютные вечера вместе ✨"
+            },
+            4: {
+                title: "💫 Которую хочется повторить",
+                content: "Здесь напиши про особенный день...\n\nМомент или поездку, в которую хочется вернуться снова и снова! 🎆"
+            },
+            5: {
+                title: "💌 Наша история",
+                content: "А это главная история, которая объединяет все пункты вместе! 💖\n\nНапиши самое главное и искреннее послание..."
+            }
+        };
+
+        function openStory(id) {
+            const story = stories[id];
+            document.getElementById('story-title').innerText = story.title;
+            document.getElementById('story-content').innerText = story.content;
+            
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('story-view').style.display = 'block';
+
+            // Легкая вибрация смартфона при нажатии (Haptic Feedback)
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
+
+        function closeStory() {
+            document.getElementById('story-view').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'block';
+
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+    </script>
+</body>
+</html>
